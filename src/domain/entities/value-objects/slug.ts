@@ -7,11 +7,11 @@ export class Slug {
 
   /**
    * Receives a string and normalize it as a slug.
-   * 
-   * Example: "An example title" => "an-example-title" 
-   * 
+   *
+   * Example: "An example title" => "an-example-title"
+   *
    * note: normalize remove special characters and return a clean character
-   * 
+   *
    * @param text {string}
    */
 
@@ -20,11 +20,11 @@ export class Slug {
       .normalize("NFKD")
       .toLocaleLowerCase()
       .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]+/g, '')
-      .replace(/_/g, '-')
-      .replace(/--+/g, '-')
-      .replace(/-$/g, '')
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "")
+      .replace(/_/g, "-")
+      .replace(/--+/g, "-")
+      .replace(/-$/g, "");
 
     return new Slug(slugText);
   }
