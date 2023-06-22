@@ -2,6 +2,7 @@ import { InMemoryAnswersRepository } from "../repositories/in-memory-answers-rep
 import { makeAnswer } from "../factories/make-answer";
 import { EditAnswerUseCase } from "@/domain/forum/application/use-cases/edit-answer";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { NotAllowedError } from "@/domain/forum/application/use-cases/errors/not-allowed-error";
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
 let sut: EditAnswerUseCase;
@@ -43,14 +44,13 @@ describe("Edit answer", () => {
 
     await inMemoryAnswersRepository.create(newAnswer);
 
-    expect(async () => {
-      return await sut.execute({
-        authorId: "author-2",
-        answerId: newAnswer.id.toValue(),
-        content: "Content teste",
-      });
-    }).rejects.toBeInstanceOf(Error);
+    const result = await sut.execute({
+      authorId: "author-2",
+      answerId: newAnswer.id.toValue(),
+      content: "Content teste",
+    });
 
-    expect(inMemoryAnswersRepository.items).toHaveLength(1);
+    expect(result.isLeft()).toBe(true);
+    expect(result.value).toBeInstanceOf(NotAllowedError);
   });
 });

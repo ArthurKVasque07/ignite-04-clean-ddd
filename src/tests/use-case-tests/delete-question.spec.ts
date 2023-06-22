@@ -2,6 +2,7 @@ import { InMemoryQuestionsRepository } from "../repositories/in-memory-questions
 import { makeQuestion } from "../factories/make-question";
 import { DeleteQuestionUseCase } from "@/domain/forum/application/use-cases/delete-question";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { NotAllowedError } from "@/domain/forum/application/use-cases/errors/not-allowed-error";
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
 let sut: DeleteQuestionUseCase;
@@ -40,13 +41,12 @@ describe("Delete question", () => {
 
     await inMemoryQuestionsRepository.create(newQuestion);
 
-    expect(async () => {
-      return await sut.execute({
-        authorId: "author-2",
-        questionId: "question-1",
-      });
-    }).rejects.toBeInstanceOf(Error);
+    const result = await sut.execute({
+      authorId: "author-2",
+      questionId: "question-1",
+    });
 
-    expect(inMemoryQuestionsRepository.items).toHaveLength(1);
+    expect(result.isLeft()).toBe(true);
+    expect(result.value).toBeInstanceOf(NotAllowedError);
   });
 });
