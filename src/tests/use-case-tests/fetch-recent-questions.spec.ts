@@ -1,28 +1,31 @@
+import { FetchRecentQuestionsUseCase } from "@/domain/forum/application/use-cases/fetch-recent-questions";
+import { InMemoryQuestionAttachmentRepository } from "../repositories/in-memory-question-attachments-repository";
 import { InMemoryQuestionsRepository } from "../repositories/in-memory-questions-repository";
 import { makeQuestion } from "../factories/make-question";
-import { FetchRecentQuestionsUseCase } from "@/domain/forum/application/use-cases/fetch-recent-questions";
 
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentRepository;
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
 let sut: FetchRecentQuestionsUseCase;
 
-describe("Fetch recent questions", () => {
+describe("Fetch Recent Questions", () => {
   beforeEach(() => {
-    inMemoryQuestionsRepository = new InMemoryQuestionsRepository();
+    inMemoryQuestionAttachmentsRepository =
+      new InMemoryQuestionAttachmentRepository();
+    inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+      inMemoryQuestionAttachmentsRepository
+    );
     sut = new FetchRecentQuestionsUseCase(inMemoryQuestionsRepository);
   });
 
   it("should be able to fetch recent questions", async () => {
     await inMemoryQuestionsRepository.create(
-      makeQuestion({ createdAt: new Date(2023, 0, 20) })
+      makeQuestion({ createdAt: new Date(2022, 0, 20) })
     );
     await inMemoryQuestionsRepository.create(
-      makeQuestion({ createdAt: new Date(2023, 0, 17) })
+      makeQuestion({ createdAt: new Date(2022, 0, 18) })
     );
     await inMemoryQuestionsRepository.create(
-      makeQuestion({ createdAt: new Date(2023, 0, 23) })
-    );
-    await inMemoryQuestionsRepository.create(
-      makeQuestion({ createdAt: new Date(2023, 0, 27) })
+      makeQuestion({ createdAt: new Date(2022, 0, 23) })
     );
 
     const result = await sut.execute({
@@ -30,10 +33,9 @@ describe("Fetch recent questions", () => {
     });
 
     expect(result.value?.questions).toEqual([
-      expect.objectContaining({ createdAt: new Date(2023, 0, 27) }),
-      expect.objectContaining({ createdAt: new Date(2023, 0, 23) }),
-      expect.objectContaining({ createdAt: new Date(2023, 0, 20) }),
-      expect.objectContaining({ createdAt: new Date(2023, 0, 17) }),
+      expect.objectContaining({ createdAt: new Date(2022, 0, 23) }),
+      expect.objectContaining({ createdAt: new Date(2022, 0, 20) }),
+      expect.objectContaining({ createdAt: new Date(2022, 0, 18) }),
     ]);
   });
 

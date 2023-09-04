@@ -1,16 +1,27 @@
+import { EditAnswerUseCase } from "@/domain/forum/application/use-cases/edit-answer";
+import { InMemoryAnswerAttachmentsRepository } from "../repositories/in-memory-answer-attachments-repository";
 import { InMemoryAnswersRepository } from "../repositories/in-memory-answers-repository";
 import { makeAnswer } from "../factories/make-answer";
-import { EditAnswerUseCase } from "@/domain/forum/application/use-cases/edit-answer";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
+import { makeAnswerAttachment } from "../factories/make-answer-attachments";
 import { NotAllowedError } from "@/domain/forum/application/use-cases/errors/not-allowed-error";
 
+let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
 let sut: EditAnswerUseCase;
 
-describe("Edit answer", () => {
+describe("Edit Answer", () => {
   beforeEach(() => {
-    inMemoryAnswersRepository = new InMemoryAnswersRepository();
-    sut = new EditAnswerUseCase(inMemoryAnswersRepository);
+    inMemoryAnswerAttachmentsRepository =
+      new InMemoryAnswerAttachmentsRepository();
+    inMemoryAnswersRepository = new InMemoryAnswersRepository(
+      inMemoryAnswerAttachmentsRepository
+    );
+
+    sut = new EditAnswerUseCase(
+      inMemoryAnswersRepository,
+      inMemoryAnswerAttachmentsRepository
+    );
   });
 
   it("should be able to edit a answer", async () => {
@@ -23,15 +34,37 @@ describe("Edit answer", () => {
 
     await inMemoryAnswersRepository.create(newAnswer);
 
+    inMemoryAnswerAttachmentsRepository.items.push(
+      makeAnswerAttachment({
+        answerId: newAnswer.id,
+        attachmentId: new UniqueEntityID("1"),
+      }),
+      makeAnswerAttachment({
+        answerId: newAnswer.id,
+        attachmentId: new UniqueEntityID("2"),
+      })
+    );
+
     await sut.execute({
-      authorId: "author-1",
       answerId: newAnswer.id.toValue(),
-      content: "Content teste",
+      authorId: "author-1",
+      content: "Conteúdo teste",
+      attachmentsIds: ["1", "3"],
     });
 
     expect(inMemoryAnswersRepository.items[0]).toMatchObject({
-      content: "Content teste",
+      content: "Conteúdo teste",
     });
+
+    expect(
+      inMemoryAnswersRepository.items[0].attachments.currentItems
+    ).toHaveLength(2);
+    expect(inMemoryAnswersRepository.items[0].attachments.currentItems).toEqual(
+      [
+        expect.objectContaining({ attachmentId: new UniqueEntityID("1") }),
+        expect.objectContaining({ attachmentId: new UniqueEntityID("3") }),
+      ]
+    );
   });
 
   it("should not be able to edit a answer from another user", async () => {
@@ -45,9 +78,10 @@ describe("Edit answer", () => {
     await inMemoryAnswersRepository.create(newAnswer);
 
     const result = await sut.execute({
-      authorId: "author-2",
       answerId: newAnswer.id.toValue(),
-      content: "Content teste",
+      authorId: "author-2",
+      content: "Conteúdo teste",
+      attachmentsIds: [],
     });
 
     expect(result.isLeft()).toBe(true);

@@ -61,6 +61,7 @@ export class EditQuestionUseCase {
 
     questionAttachmentList.update(questionAttachments);
 
+    question.attachments = questionAttachmentList;
     question.title = title;
     question.content = content;
     question.attachments = questionAttachmentList;
