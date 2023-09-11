@@ -2,7 +2,7 @@ import { InMemoryAnswersRepository } from "../repositories/in-memory-answers-rep
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import { DeleteAnswerUseCase } from "@/domain/forum/application/use-cases/delete-answer";
 import { makeAnswer } from "../factories/make-answer";
-import { NotAllowedError } from "@/domain/forum/application/use-cases/errors/not-allowed-error";
+import { NotAllowedError } from "@/core/errors/errors/not-allowed-error";
 import { InMemoryAnswerAttachmentsRepository } from "../repositories/in-memory-answer-attachments-repository";
 import { makeAnswerAttachment } from "../factories/make-answer-attachments";
 

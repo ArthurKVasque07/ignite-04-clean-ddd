@@ -4,7 +4,7 @@ import { InMemoryAnswersRepository } from "../repositories/in-memory-answers-rep
 import { makeAnswer } from "../factories/make-answer";
 import { UniqueEntityID } from "@/core/entities/unique-entity-id";
 import { makeAnswerAttachment } from "../factories/make-answer-attachments";
-import { NotAllowedError } from "@/domain/forum/application/use-cases/errors/not-allowed-error";
+import { NotAllowedError } from "@/core/errors/errors/not-allowed-error";
 
 let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
